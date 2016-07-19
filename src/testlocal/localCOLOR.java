@@ -104,9 +104,10 @@ public class localCOLOR {
 	     frame3.setContentPane(panel3);      
 	     frame3.setVisible(false);
 	     
-	     VideoCapture capture =new VideoCapture(1);  
-	     Mat webcam_image=new Mat(); 
-	     capture.read(webcam_image); 
+	      
+	     
+	     Mat webcam_image=Highgui.imread("Green.PNG",  Highgui.CV_LOAD_IMAGE_COLOR); 
+	     
 	     frame1.setSize(webcam_image.width()+40,webcam_image.height()+60);   
 	     frame2.setSize(webcam_image.width()+40,webcam_image.height()+60);  
 	     frame3.setSize(webcam_image.width()+40,webcam_image.height()+60);  
@@ -127,14 +128,10 @@ public class localCOLOR {
 
 	    List<MatOfPoint> contours = new ArrayList<MatOfPoint>();    
 	    
-	      if( capture.isOpened())  
-	      {  
-	       while( true )	      {  
-	         capture.read(webcam_image);  
+  
 	         if( !webcam_image.empty() )  
 	          {  	           	         
-	        	
-				   
+   
 				   Imgproc.medianBlur(webcam_image, webcam_image, 3); //cancel noise right from camera
 				   Imgproc.cvtColor(webcam_image, hsv_image, Imgproc.COLOR_BGR2HSV);
 				   Core.inRange(hsv_image , hsv_min, hsv_max, thresholded);
@@ -168,7 +165,7 @@ public class localCOLOR {
 	               Rect rect = Imgproc.boundingRect(points);
 
 	                // draw enclosing rectangle (all same color, but you could use variable i to make them unique)
-	               Core.rectangle(thresholded2, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 255, 0), 3); 
+	               Core.rectangle(thresholded2, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255, 255, 0), 1); 
 
 	           }
 	           
@@ -193,10 +190,10 @@ public class localCOLOR {
 	          else  
 	          {  
 	            System.out.println(" --(!) No captured frame -- Break!");  
-	            break;  
+	             
 	          }  
-	         }  
-	        }  
+	          
+	        
 	      return;  
 	    }  
 	  }   
