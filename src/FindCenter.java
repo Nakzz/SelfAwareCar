@@ -183,7 +183,7 @@ public class FindCenter {
 	             frame1.repaint();     
 	             panel2.setimagewithMat(thresholded2);    
 	             frame2.repaint(); 
-	             Highgui.imwrite("FInal.JPG", thresholded2);
+	             Highgui.imwrite("FInal.JPG", thresholded2); // wrote this to see what the updated images becomes
 	             //panel3.setimagewithMat(cont);    
 	             //frame3.repaint();  
 	             //System.out.println(contoursCounter); 
