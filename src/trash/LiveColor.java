@@ -1,4 +1,4 @@
-package testlocal;
+package trash;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -88,7 +88,7 @@ class Panel extends JPanel {
 	}
 }
 
-public class localCOLOR {
+public class LiveColor {
 
 	public static void main(String arg[]) throws InterruptedException {
 		// Load the native library.
@@ -124,7 +124,7 @@ public class localCOLOR {
 			Highgui.imwrite("camera.jpeg", webcam_snap);
 		}
 
-		Mat webcam_image = Highgui.imread("green3.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
+		Mat webcam_image = Highgui.imread("green2.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
 
 		frame1.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 		frame2.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
@@ -171,7 +171,7 @@ public class localCOLOR {
 				if (Imgproc.contourArea(contours.get(i)) > 50) {
 					Rect recta = Imgproc.boundingRect(contours.get(i));
 					// System.out.println(recta.height);
-					if (recta.height > 48) {
+					if (recta.height > 28) {
 						MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
 						// Processing on mMOP2f1 which is in type MatOfPoint2f
 						double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
@@ -185,20 +185,9 @@ public class localCOLOR {
 
 						// draw enclosing rectangle (all same color, but you
 						// could use variable i to make them unique)
-						Core.rectangle(webcam_image, new Point(rect.x, rect.y),
-								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
 						Core.rectangle(thresholded3, new Point(rect.x, rect.y),
 								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
-						
-					int	xCenter = rect.x + (rect.width/2); 
-						int yCenter = rect.y + (rect.height/2);
-						
-						
-						System.out.println("REc.x center:" + xCenter + "   " + "Rec.y center:" + yCenter);
-						System.out.println(" " +rect.x +" " + rect.y +" " + rect.height +" " + rect.width );
-						Core.circle(webcam_image, new Point(xCenter, yCenter), 2, new Scalar(255,255, 0, 255));
-						Core.line(thresholded3, new Point(xCenter, yCenter), new Point(x_center, y_center),
-								new Scalar(255, 49, 0, 255));
+
 					}
 
 				}
@@ -210,7 +199,7 @@ public class localCOLOR {
 
 			// For each contour found
 
-/*			List<Moments> mu = new ArrayList<Moments>(contours.size());
+			List<Moments> mu = new ArrayList<Moments>(contours.size());
 			for (int i = 0; i < contours.size(); i++) {
 				mu.add(i, Imgproc.moments(contours.get(i), false));
 				Moments p = mu.get(i);
@@ -240,7 +229,7 @@ public class localCOLOR {
 				}
 
 			}
-*/
+
 			// Imgproc.findContours(thresholded2, contours, thresholded2,
 			// Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
 			// Imgproc.drawContours(thresholded2, contours, -1, colorCont);
