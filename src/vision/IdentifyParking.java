@@ -1,11 +1,11 @@
-package trash;
+package vision;
+
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JFrame;
+
 import javax.swing.JPanel;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -18,8 +18,7 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.Moments;
-import org.opencv.core.CvType;
+
 
 class Panel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -78,66 +77,41 @@ class Panel extends JPanel {
 	protected void paintComponent(Graphics g) {
 
 		super.paintComponent(g);
-		// BufferedImage temp=new BufferedImage(640, 480,
-		// BufferedImage.TYPE_3BYTE_BGR);
 		BufferedImage temp = getimage();
-		// Graphics2D g2 = (Graphics2D)g;
 		if (temp != null)
 			g.drawImage(temp, 10, 10, temp.getWidth(), temp.getHeight(), this);
 
 	}
 }
 
-public class LiveColor {
+public class IdentifyParking {
 
-	public static void main(String arg[]) throws InterruptedException {
+	public int[] center () throws InterruptedException{
+		int[] CenterOfObject;
+
+        // allocates memory for 10 integers
+		CenterOfObject = new int[2];
+           
 		// Load the native library.
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
-		JFrame frame1 = new JFrame("Camera Input");
-		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame1.setBounds(0, 0, frame1.getWidth(), frame1.getHeight());
-		Panel panel1 = new Panel();
-		frame1.setContentPane(panel1);
-		frame1.setVisible(true);
-		JFrame frame2 = new JFrame("Thresholded Output");
-		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame2.setBounds(500, 200, frame1.getWidth() + 900, 300 + frame1.getHeight());
-		Panel panel2 = new Panel();
-		frame2.setContentPane(panel2);
-		frame2.setVisible(true);
-		JFrame frame3 = new JFrame("Contour");
-		frame3.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame3.setBounds(900, 400, frame1.getWidth() + 900, 300 + frame1.getHeight());
-		Panel panel3 = new Panel();
-		frame3.setContentPane(panel3);
-		frame3.setVisible(false);
 
 		Mat webcam_snap = new Mat();
 		VideoCapture capture = new VideoCapture(1); //
 		if (capture.isOpened()) {
-
 			Thread.sleep(1000); // delay for webcam to load
-
 			capture.read(webcam_snap);
-
 			Highgui.imwrite("camera.jpeg", webcam_snap);
 		}
 
-		Mat webcam_image = Highgui.imread("green2.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
-
-		frame1.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
-		frame2.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
-		frame3.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
+		Mat webcam_image = Highgui.imread("green3.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
 
 		Mat hsv_image = new Mat();
 		Mat thresholded = new Mat();
-		Mat thresholded2 = new Mat();
-		Mat thresholded3 = new Mat();
+
 
 		int y_center = webcam_image.height() / 2;
 		int x_center = webcam_image.width() / 2;
-
+int deltaX = 0, deltaY=0;
 		Scalar hsv_min = new Scalar(64, 70, 70, 0);
 		Scalar hsv_max = new Scalar(85, 255, 255, 0);
 
@@ -153,14 +127,11 @@ public class LiveColor {
 			Imgproc.cvtColor(webcam_image, hsv_image, Imgproc.COLOR_BGR2HSV);
 			Core.inRange(hsv_image, hsv_min, hsv_max, thresholded);
 
-			Imgproc.GaussianBlur(thresholded, thresholded2, s, 1.5); // make
-																		// smooth
-																		// output
+			Imgproc.GaussianBlur(thresholded, thresholded, s, 1.5); 
+			Imgproc.dilate(thresholded, thresholded, new Mat());
+			Imgproc.erode(thresholded, thresholded, new Mat());
 
-			Imgproc.dilate(thresholded2, thresholded3, new Mat());
-			Imgproc.erode(thresholded3, thresholded3, new Mat());
-
-			Imgproc.findContours(thresholded3, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+			Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 			for (int i = 0; i < contours.size(); i++) {
 				// System.out.println(Imgproc.contourArea(contours.get(i)));
@@ -171,7 +142,7 @@ public class LiveColor {
 				if (Imgproc.contourArea(contours.get(i)) > 50) {
 					Rect recta = Imgproc.boundingRect(contours.get(i));
 					// System.out.println(recta.height);
-					if (recta.height > 28) {
+					if (recta.height > 48) {
 						MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
 						// Processing on mMOP2f1 which is in type MatOfPoint2f
 						double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
@@ -185,70 +156,55 @@ public class LiveColor {
 
 						// draw enclosing rectangle (all same color, but you
 						// could use variable i to make them unique)
-						Core.rectangle(thresholded3, new Point(rect.x, rect.y),
+						Core.rectangle(webcam_image, new Point(rect.x, rect.y),
 								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
-
+						Core.rectangle(thresholded, new Point(rect.x, rect.y),
+								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
+						
+					int	xCenter = rect.x + (rect.width/2); 
+						int yCenter = rect.y + (rect.height/2);
+						
+						
+//debug						System.out.println("REc.x center:" + xCenter + "   " + "Rec.y center:" + yCenter);
+//debug						System.out.println(" " +rect.x +" " + rect.y +" " + rect.height +" " + rect.width );
+						Core.circle(webcam_image, new Point(xCenter, yCenter), 2, new Scalar(255,255, 0, 255));
+						Core.line(thresholded, new Point(xCenter, yCenter), new Point(x_center, y_center),
+								new Scalar(255, 49, 0, 255));
+						deltaX = rect.x - x_center;
+						deltaY = rect.y - y_center;
+/*debug						if (deltaX > 0) {
+							System.out.println("X is " + deltaX + " px right.");
+						} else {
+							System.out.println("X is " + deltaX + " px left.");
+						}
+						if (deltaY < 0) {
+							System.out.println("Y is " + deltaY + " px up.");
+						} else {
+							System.out.println("X is " + deltaY + " px down.");
+												}*/
+						
 					}
 
 				}
 			}
 
-			// Imgproc.drawContours(thresholded3, contours, 0, new
-			// Scalar(255,255,0));
-			// if(contourArea=)
-
-			// For each contour found
-
-			List<Moments> mu = new ArrayList<Moments>(contours.size());
-			for (int i = 0; i < contours.size(); i++) {
-				mu.add(i, Imgproc.moments(contours.get(i), false));
-				Moments p = mu.get(i);
-				int x = (int) (p.get_m10() / p.get_m00());
-				int y = (int) (p.get_m01() / p.get_m00());
-				if (Imgproc.contourArea(contours.get(i)) > 50) {
-					Rect recta = Imgproc.boundingRect(contours.get(i));
-					// System.out.println(recta.height);
-					if (recta.height > 28) {
-						Core.circle(thresholded3, new Point(x, y), 1, new Scalar(255, 49, 0, 255));
-					}
-					System.out.println("X:" + x + "   " + "Y:" + y);
-					Core.line(thresholded3, new Point(x, y), new Point(x_center, y_center),
-							new Scalar(255, 49, 0, 255));
-					int deltaX = x - x_center;
-					int deltaY = y - y_center;
-					if (deltaX > 0) {
-						System.out.println("X is " + deltaX + " px right.");
-					} else {
-						System.out.println("X is " + deltaX + " px left.");
-					}
-					if (deltaY < 0) {
-						System.out.println("Y is " + deltaY + " px up.");
-					} else {
-						System.out.println("X is " + deltaY + " px down.");
-					}
-				}
-
-			}
-
-			// Imgproc.findContours(thresholded2, contours, thresholded2,
-			// Imgproc.RETR_LIST,Imgproc.CHAIN_APPROX_SIMPLE);
-			// Imgproc.drawContours(thresholded2, contours, -1, colorCont);
 
 			// -- 5. Display the image
-			panel1.setimagewithMat(webcam_image);
+/*debug			panel1.setimagewithMat(webcam_image);
 			frame1.repaint();
-			panel2.setimagewithMat(thresholded3);
+			panel2.setimagewithMat(thresholded);
 			frame2.repaint();
-			Highgui.imwrite("FInal.JPG", thresholded3);
-			// panel3.setimagewithMat(cont);
-			// frame3.repaint();
-			// System.out.println(contoursCounter);
+ */
+
+			Highgui.imwrite("FInal.JPG", thresholded);
+
 
 		} else {
 			System.out.println(" --(!) No captured frame -- Break!");
 
 		}
-
-		return;
+		CenterOfObject[0]= deltaX;
+		CenterOfObject[1]=deltaY;
+		return CenterOfObject;
 	}
 }
