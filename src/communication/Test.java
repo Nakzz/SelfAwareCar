@@ -1,29 +1,5 @@
-package main;
-
-import java.io.OutputStream;
-
-
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-
-import vision.*;
-
-
-/*public class main {
-
-	public static void main(String[] args) throws InterruptedException {
-		// TODO Auto-generated method stub
-		IdentifyParking x = new IdentifyParking();
-		
-		int[] B=  x.center();
-		
-		System.out.println("X"+(B[0	]));
-		System.out.println("Y"+(B[1]));
-		
-}} */
-
-
-
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import java.io.BufferedReader;
@@ -34,7 +10,7 @@ import java.util.Enumeration;
 /**
  * @author ericjbruno
  */
-public class main implements SerialPortEventListener {
+public class Test implements SerialPortEventListener {
     SerialPort serialPort = null;
 
     private static final String PORT_NAMES[] = { 
@@ -156,34 +132,18 @@ public class main implements SerialPortEventListener {
         }
     }
 
-    public main() {
+    public Test() {
         appName = getClass().getName();
     }
     
     public static void main(String[] args) throws Exception {
-        main test = new main();
-        
-        IdentifyParking x = new IdentifyParking();
-		
-		int[] B;
-			B = x.center();
-			System.out.println("X"+(B[0	]));
-			System.out.println("Y"+(B[1]));
-			
-			int X = (int) B[0];
-			int Y = (int) B[1];
-			
-			if (X < 0){
-        
+        Test test = new Test();
         if ( test.initialize() ) {
             test.sendData("y");
             try { Thread.sleep(2000); } catch (InterruptedException ie) {}
             test.sendData("n");
             try { Thread.sleep(2000); } catch (InterruptedException ie) {}
             test.close();
-        } } else { 
-        	
-        	
         }
 
         // Wait 5 seconds then shutdown
