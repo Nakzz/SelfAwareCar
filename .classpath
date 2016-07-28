@@ -6,6 +6,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jinput"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/NetworkTables"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/RXTX">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/dev/mfz-rxtx-2.2-20081207-win-x64"/>
+		</attributes>
 		<accessrules>
 			<accessrule kind="accessible" pattern="javafx/"/>
 		</accessrules>

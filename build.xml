@@ -1,0 +1,5 @@
+<jar destfile="test.jar">
+    <manifest>
+        <attribute name="Class-path" value="opencv-2413.jar"/>
+    </manifest>
+</jar>

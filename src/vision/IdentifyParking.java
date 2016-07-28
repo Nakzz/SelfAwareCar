@@ -1,6 +1,5 @@
 package vision;
 
-
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
-
 
 class Panel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -86,12 +84,12 @@ class Panel extends JPanel {
 
 public class IdentifyParking {
 
-	public int[] center () throws InterruptedException{
+	public int[] center() throws InterruptedException {
 		int[] CenterOfObject;
 
-        // allocates memory for 10 integers
+		// allocates memory for 10 integers
 		CenterOfObject = new int[2];
-           
+
 		// Load the native library.
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
@@ -100,18 +98,17 @@ public class IdentifyParking {
 		if (capture.isOpened()) {
 			Thread.sleep(1000); // delay for webcam to load
 			capture.read(webcam_snap);
-			Highgui.imwrite("camera.jpeg", webcam_snap);
+			Highgui.imwrite("camera2.jpeg", webcam_snap);
 		}
 
-		Mat webcam_image = Highgui.imread("green3.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
+		Mat webcam_image = Highgui.imread("camera2.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
 
 		Mat hsv_image = new Mat();
 		Mat thresholded = new Mat();
 
-
 		int y_center = webcam_image.height() / 2;
 		int x_center = webcam_image.width() / 2;
-int deltaX = 0, deltaY=0;
+		int deltaX = 0, deltaY = 0;
 		Scalar hsv_min = new Scalar(64, 70, 70, 0);
 		Scalar hsv_max = new Scalar(85, 255, 255, 0);
 
@@ -127,7 +124,7 @@ int deltaX = 0, deltaY=0;
 			Imgproc.cvtColor(webcam_image, hsv_image, Imgproc.COLOR_BGR2HSV);
 			Core.inRange(hsv_image, hsv_min, hsv_max, thresholded);
 
-			Imgproc.GaussianBlur(thresholded, thresholded, s, 1.5); 
+			Imgproc.GaussianBlur(thresholded, thresholded, s, 1.5);
 			Imgproc.dilate(thresholded, thresholded, new Mat());
 			Imgproc.erode(thresholded, thresholded, new Mat());
 
@@ -160,51 +157,47 @@ int deltaX = 0, deltaY=0;
 								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
 						Core.rectangle(thresholded, new Point(rect.x, rect.y),
 								new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 1);
-						
-					int	xCenter = rect.x + (rect.width/2); 
-						int yCenter = rect.y + (rect.height/2);
-						
-						
-//debug						System.out.println("REc.x center:" + xCenter + "   " + "Rec.y center:" + yCenter);
-//debug						System.out.println(" " +rect.x +" " + rect.y +" " + rect.height +" " + rect.width );
-						Core.circle(webcam_image, new Point(xCenter, yCenter), 2, new Scalar(255,255, 0, 255));
+
+						int xCenter = rect.x + (rect.width / 2);
+						int yCenter = rect.y + (rect.height / 2);
+
+						// debug System.out.println("REc.x center:" + xCenter +
+						// " " + "Rec.y center:" + yCenter);
+						// debug System.out.println(" " +rect.x +" " + rect.y +"
+						// " + rect.height +" " + rect.width );
+						Core.circle(webcam_image, new Point(xCenter, yCenter), 2, new Scalar(255, 255, 0, 255));
 						Core.line(thresholded, new Point(xCenter, yCenter), new Point(x_center, y_center),
 								new Scalar(255, 49, 0, 255));
 						deltaX = rect.x - x_center;
 						deltaY = rect.y - y_center;
-/*debug						if (deltaX > 0) {
-							System.out.println("X is " + deltaX + " px right.");
-						} else {
-							System.out.println("X is " + deltaX + " px left.");
-						}
-						if (deltaY < 0) {
-							System.out.println("Y is " + deltaY + " px up.");
-						} else {
-							System.out.println("X is " + deltaY + " px down.");
-												}*/
-						
+						/*
+						 * debug if (deltaX > 0) { System.out.println("X is " +
+						 * deltaX + " px right."); } else {
+						 * System.out.println("X is " + deltaX + " px left."); }
+						 * if (deltaY < 0) { System.out.println("Y is " + deltaY
+						 * + " px up."); } else { System.out.println("X is " +
+						 * deltaY + " px down."); }
+						 */
+
 					}
 
 				}
 			}
 
-
 			// -- 5. Display the image
-/*debug			panel1.setimagewithMat(webcam_image);
-			frame1.repaint();
-			panel2.setimagewithMat(thresholded);
-			frame2.repaint();
- */
+			/*
+			 * debug panel1.setimagewithMat(webcam_image); frame1.repaint();
+			 * panel2.setimagewithMat(thresholded); frame2.repaint();
+			 */
 
 			Highgui.imwrite("FInal.JPG", thresholded);
-
 
 		} else {
 			System.out.println(" --(!) No captured frame -- Break!");
 
 		}
-		CenterOfObject[0]= deltaX;
-		CenterOfObject[1]=deltaY;
+		CenterOfObject[0] = deltaX;
+		CenterOfObject[1] = deltaY;
 		return CenterOfObject;
 	}
 }
