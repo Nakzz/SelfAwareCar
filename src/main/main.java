@@ -4,7 +4,7 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-import vision.IdentifyParking;
+import vision.identifytraffic;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -111,6 +111,7 @@ public class main implements SerialPortEventListener {
 	//
 	// Handle serial port event
 	//
+	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		// System.out.println("Event received: " + oEvent.toString());
 		try {
@@ -138,14 +139,14 @@ public class main implements SerialPortEventListener {
 	public static void main(String[] args) throws Exception {
 		int a = 0;
 		main comm = new main();
-		IdentifyParking x = new IdentifyParking();
+		identifytraffic x = new identifytraffic();
 		comm.initialize();
 		
 		while (a < 25) {
 			x.center();
 			int[] B = x.center();
-			int X = (int) B[0];
-			int Y = (int) B[1];
+			int X = B[0];
+			int Y = B[1];
 
 			System.out.println("X" + X);
 			System.out.println("Y" + Y);
@@ -154,8 +155,8 @@ public class main implements SerialPortEventListener {
 			while (X < -50 || X > 50) {
 				x.center();
 				B = x.center();
-				X = (int) B[0];
-				Y = (int) B[1];
+				X = B[0];
+				Y = B[1];
 
 				System.out.println(X);
 				System.out.println(Y);

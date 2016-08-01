@@ -82,7 +82,7 @@ class Panel extends JPanel {
 	}
 }
 
-public class IdentifyParking {
+public class identifytraffic {
 
 	public int[] center() throws InterruptedException {
 		int[] CenterOfObject;

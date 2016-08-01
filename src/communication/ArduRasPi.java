@@ -72,6 +72,7 @@ public class ArduRasPi {
 			this.in = in;
 		}
 
+		@Override
 		public void run() {
 			byte[] buffer = new byte[1024];
 			int len = -1;
@@ -92,6 +93,7 @@ public class ArduRasPi {
 			this.out = out;
 		}
 
+		@Override
 		public void run() {
 			try {
 				int c = 0;

@@ -109,6 +109,7 @@ public class Test implements SerialPortEventListener {
 	//
 	// Handle serial port event
 	//
+	@Override
 	public synchronized void serialEvent(SerialPortEvent oEvent) {
 		// System.out.println("Event received: " + oEvent.toString());
 		try {
