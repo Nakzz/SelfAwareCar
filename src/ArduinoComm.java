@@ -3,7 +3,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import com.fazecast.jSerialComm.*;
 
-
 public class ArduinoComm {
 	static SerialPort comPort;
 
@@ -31,22 +30,23 @@ public class ArduinoComm {
 			@Override
 			public void run() {
 				try {
-				while (true) {
-					PrintWriter output = new PrintWriter(comPort.getOutputStream());
-					output.print(t);
-					output.flush();
-					
+					while (true) {
+						PrintWriter output = new PrintWriter(comPort.getOutputStream());
+						output.print(t);
+						output.flush();
+
 						Thread.sleep(100);
-					}} catch (Exception e) {
-						try {
-							Thread.sleep(1000);
-							write(t);
-						} catch (InterruptedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
 					}
-				
+				} catch (Exception e) {
+					try {
+						Thread.sleep(1000);
+						write(t);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+
 			}
 
 		};
@@ -59,34 +59,43 @@ public class ArduinoComm {
 
 	public static void main(String[] args) {
 		identifytraffic trafficstat = new identifytraffic();
-		
+
 		connect();
-		
-		int a=0;
+
+		int a = 0;
 		int t = 0;
 		int traffic = trafficstat.traffic();
-		
-		while(a < 25){
+
+		while (a < 50) {
 			traffic = trafficstat.traffic();
-		if (traffic == 1){
-			t= 1;
-		} else if (traffic == 2){
-			t=2;
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				
+			
+			if (traffic == 1) {
+				t = 1;
+				System.out.println("Sending RED");
+			} else if (traffic == 2) {
+				t = 2;
+				System.out.println("Sending GREEN");
+//				try {
+//					Thread.sleep(200);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//
+//				}
+			} else {
+				t = 0;
+				System.out.println("Sending IDEK");
 			}
-		} else {t=3;};
-		 
-		
-		write(t);
-		
-		read();
-		a++;
+
+			write(t);
+
+			//read();
+			a++;
+			System.out.println("Loop count: "+a);
 		}
+		
+		write(1); //stop arduino when we're done
+		
 		disconnect();
 
 	}

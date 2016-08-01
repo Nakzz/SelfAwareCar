@@ -93,6 +93,8 @@ class Panel extends JPanel {
 public class Trackbar {
     static public Mat thresholded;
     static public Mat hsvImg;
+    static public Mat processed;
+    static public Mat webcam_image;
     
 	public static void main(String arg[]) {
 
@@ -130,12 +132,10 @@ public class Trackbar {
 			System.exit(-1);
 		}
 
-		Mat webcam_image = new Mat();
-		Mat tGreen = new Mat();
-		Mat tRed = new Mat();
-		Mat tRed2 = new Mat();
+		webcam_image = new Mat();
 		thresholded = new Mat();
 		hsvImg = new Mat();
+		processed = new Mat();
 		
 		capture.read(webcam_image);
 		frame1.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
@@ -153,8 +153,7 @@ public class Trackbar {
 		// hsv_V.getValue(), 0);
 		// Scalar hsv_maxR1 = new Scalar(hsv_UH.getValue(), hsv_US.getValue(),
 		// hsv_UV.getValue(), 0);
-		Scalar hsv_minR2 = new Scalar(175, 50, 50, 0);
-		Scalar hsv_maxR2 = new Scalar(179, 255, 255, 0);
+
 
 		panel1.add(hsv_H);
 		panel1.add(hsv_UH);
@@ -183,14 +182,14 @@ public class Trackbar {
 					Scalar hsv_maxR1 = new Scalar(hsv_UH.getValue(), hsv_US.getValue(), hsv_UV.getValue(), 0);
 
 					// Display the image
-					panel1.setimagewithMat(webcam_image);
-					panel2.setimagewithMat(hsv_image);
+					
+					panel2.setimagewithMat(hsvImg);
 
 					boolean foundRed = findColor(hsv_minR1, hsv_maxR1);
 					panel4.setimagewithMat(thresholded); //show image thresholded for red
 					boolean foundGreen = findColor(hsv_minG, hsv_maxG);
 					panel4.setimagewithMat(thresholded); //show image thresholded for green
-
+					panel1.setimagewithMat(webcam_image);
 					frame1.repaint();
 					frame2.repaint();
 					frame4.repaint();
@@ -199,6 +198,7 @@ public class Trackbar {
 						System.out.println("Red Found");
 					} else if (foundGreen) {
 						System.out.println("Green Found");
+						break;
 					} else {
 						System.out.println("Idek");
 					}
@@ -220,19 +220,37 @@ public class Trackbar {
 		Core.inRange(hsvImg, hsv_min, hsv_max, thresholded);
 
 		Size s = new Size(3, 3);
-		Imgproc.GaussianBlur(thresholded, thresholded, s, 1.5);
-		Imgproc.dilate(thresholded, thresholded, new Mat());
-		Imgproc.erode(thresholded, thresholded, new Mat());
-		Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		Imgproc.GaussianBlur(thresholded, processed, s, 1.5);
+		Imgproc.dilate(processed, processed, new Mat());
+		Imgproc.erode(processed, processed, new Mat());
+		Imgproc.findContours(processed, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 		
 		for (int i = 0; i < contours.size(); i++) {
 			if (Imgproc.contourArea(contours.get(i)) > 30) {
 				Rect rectr = Imgproc.boundingRect(contours.get(i));
 				if (rectr.height > 20) {
 					bigContourCount++;
+					MatOfPoint2f approxCurve = new MatOfPoint2f();
+					MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
+					// Processing on mMOP2f1 which is in type MatOfPoint2f
+					double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+					Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
+
+					// Convert back to MatOfPoint
+					MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+
+					// Get bounding rect of contour
+					Rect rect = Imgproc.boundingRect(points);
+
+					// draw enclosing rectangle (all same color, but you
+					// could use variable i to make them unique)
+					Core.rectangle(webcam_image, new Point(rect.x, rect.y),
+							new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 3);
+					
 				}
 			}
 		}
+		System.out.println(bigContourCount);
 		
 		if (bigContourCount > 0 ) {
 			foundColor = true;
