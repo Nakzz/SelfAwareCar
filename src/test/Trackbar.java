@@ -91,6 +91,9 @@ class Panel extends JPanel {
 }
 
 public class Trackbar {
+    static public Mat thresholded;
+    static public Mat hsvImg;
+    
 	public static void main(String arg[]) {
 
 		// Load the native library.
@@ -98,7 +101,6 @@ public class Trackbar {
 		// It is better to group all frames together so cut and paste to
 		// create more frames is easier
 
-		int color = 0;
 		JFrame frame1 = new JFrame("Camera");
 		frame1.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame1.setSize(640, 480);
@@ -129,11 +131,12 @@ public class Trackbar {
 		}
 
 		Mat webcam_image = new Mat();
-		Mat hsv_image = new Mat();
 		Mat tGreen = new Mat();
 		Mat tRed = new Mat();
 		Mat tRed2 = new Mat();
-
+		thresholded = new Mat();
+		hsvImg = new Mat();
+		
 		capture.read(webcam_image);
 		frame1.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 		frame2.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
@@ -170,107 +173,36 @@ public class Trackbar {
 		Scalar hsv_minG = new Scalar(64, 70, 70, 0);
 		Scalar hsv_maxG = new Scalar(85, 255, 255, 0);
 
-		Size s = new Size(3, 3);
-
-
 		if (capture.isOpened()) {
 			while (true) {
 				capture.read(webcam_image);
 				if (!webcam_image.empty()) {
 					// One way to select a range of colors by Hue
-					Imgproc.cvtColor(webcam_image, hsv_image, Imgproc.COLOR_BGR2HSV);
-					List<MatOfPoint> Rcontours = new ArrayList<MatOfPoint>();
-					List<MatOfPoint> Gcontours = new ArrayList<MatOfPoint>();
+					Imgproc.cvtColor(webcam_image, hsvImg, Imgproc.COLOR_BGR2HSV);
 					Scalar hsv_minR1 = new Scalar(hsv_H.getValue(), hsv_S.getValue(), hsv_V.getValue(), 0);
 					Scalar hsv_maxR1 = new Scalar(hsv_UH.getValue(), hsv_US.getValue(), hsv_UV.getValue(), 0);
-/*
-					System.out.println("H: " + hsv_H.getValue());
-					System.out.println("UH: " + hsv_UH.getValue());
-					System.out.println("S: " + hsv_S.getValue());
-					System.out.println("US: " + hsv_US.getValue());
-					System.out.println("V: " + hsv_V.getValue());
-					System.out.println("UV: " + hsv_UV.getValue());
-					System.out.println("Scaler Min: " + hsv_minR1);
-					System.out.println("Scaler Max: " + hsv_maxR1);
-*/
-					// red
-					Core.inRange(hsv_image, hsv_minR1, hsv_maxR1, tRed);
 
-					Imgproc.GaussianBlur(tRed, tRed, s, 1.5);
-					Imgproc.dilate(tRed, tRed, new Mat());
-					Imgproc.erode(tRed, tRed, new Mat());
-					Imgproc.findContours(tRed, Rcontours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-
-					
-					System.out.println(Rcontours.size());
-					for (int i = 0; i < Rcontours.size(); i++) {
-						// System.out.println(Imgproc.contourArea(contours.get(i)));
-
-						MatOfPoint2f approxCurve = new MatOfPoint2f();
-						// Convert contours(i) from MatOfPoint to MatOfPoint2f
-
-						if (Imgproc.contourArea(Rcontours.get(i)) > 30) {
-							Rect rectr = Imgproc.boundingRect(Rcontours.get(i));
-							// System.out.println(recta.height);
-							if (rectr.height > 20) {
-								MatOfPoint2f contour2f = new MatOfPoint2f(Rcontours.get(i).toArray());
-								// Processing on mMOP2f1 which is in type
-								// MatOfPoint2f
-								double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
-								Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
-
-								color = 1;
-							} else {
-								color = 0;
-							}
-
-						}
-					}
-
-					Core.inRange(hsv_image, hsv_minG, hsv_maxG, tGreen);
-					Imgproc.GaussianBlur(tGreen, tGreen, s, 1.5);
-					Imgproc.dilate(tGreen, tGreen, new Mat());
-					Imgproc.erode(tGreen, tGreen, new Mat());
-					Imgproc.findContours(tGreen, Gcontours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-
-					for (int i = 0; i < Gcontours.size(); i++) {
-						// System.out.println(Imgproc.contourArea(contours.get(i)));
-
-						MatOfPoint2f approxCurve = new MatOfPoint2f();
-						// Convert contours(i) from MatOfPoint to MatOfPoint2f
-
-						if (Imgproc.contourArea(Gcontours.get(i)) > 50) {
-							Rect recta = Imgproc.boundingRect(Gcontours.get(i));
-							// System.out.println(recta.height);
-							if (recta.height > 48) {
-								MatOfPoint2f contour2f = new MatOfPoint2f(Gcontours.get(i).toArray());
-								// Processing on mMOP2f1 which is in type
-								// MatOfPoint2f
-								double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
-								Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
-
-								color = 2;
-							} else {
-								color = 0;
-							}
-
-						}
-					}
-					// -- 5. Display the image
+					// Display the image
 					panel1.setimagewithMat(webcam_image);
 					panel2.setimagewithMat(hsv_image);
 
-					panel4.setimagewithMat(tRed);
+					boolean foundRed = findColor(hsv_minR1, hsv_maxR1);
+					panel4.setimagewithMat(thresholded); //show image thresholded for red
+					boolean foundGreen = findColor(hsv_minG, hsv_maxG);
+					panel4.setimagewithMat(thresholded); //show image thresholded for green
+
 					frame1.repaint();
 					frame2.repaint();
 					frame4.repaint();
-					if (color == 1) {
+					
+					if (foundRed) {
 						System.out.println("Red Found");
-					} else if (color == 2) {
+					} else if (foundGreen) {
 						System.out.println("Green Found");
 					} else {
 						System.out.println("Idek");
 					}
+					
 				} else {
 					System.out.println(" --(!) No captured frame -- Break!");
 					break;
@@ -279,5 +211,35 @@ public class Trackbar {
 		}
 
 		return;
+	}
+	
+	public static boolean findColor(Scalar hsv_min, Scalar hsv_max) {
+		boolean foundColor = false;
+		int bigContourCount = 0;
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Core.inRange(hsvImg, hsv_min, hsv_max, thresholded);
+
+		Size s = new Size(3, 3);
+		Imgproc.GaussianBlur(thresholded, thresholded, s, 1.5);
+		Imgproc.dilate(thresholded, thresholded, new Mat());
+		Imgproc.erode(thresholded, thresholded, new Mat());
+		Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+		for (int i = 0; i < contours.size(); i++) {
+			if (Imgproc.contourArea(contours.get(i)) > 30) {
+				Rect rectr = Imgproc.boundingRect(contours.get(i));
+				if (rectr.height > 20) {
+					bigContourCount++;
+				}
+			}
+		}
+		
+		if (bigContourCount > 0 ) {
+			foundColor = true;
+		} else {
+			foundColor = false;
+		}
+
+		return foundColor;
 	}
 }
