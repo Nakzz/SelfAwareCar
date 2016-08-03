@@ -13,8 +13,6 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-
-
 public class identifytrafficLIVE {
 	public int traffic() {
 
@@ -66,7 +64,6 @@ public class identifytrafficLIVE {
 
 		Scalar hsv_minR1 = new Scalar(153, 117, 170, 0);
 		Scalar hsv_maxR1 = new Scalar(180, 255, 255, 0);
-
 
 		Scalar hsv_minG = new Scalar(64, 70, 70, 0);
 		Scalar hsv_maxG = new Scalar(85, 255, 255, 0);
@@ -165,15 +162,15 @@ public class identifytrafficLIVE {
 						System.out.println("Idek");
 						color = 0;
 					}
-					
+
 				} else {
 					System.out.println(" --(!) No captured frame -- Break!");
 					break;
 				}
 			}
 		}
-		
+
 		return color;
-		
+
 	}
 }

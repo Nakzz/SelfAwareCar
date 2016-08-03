@@ -115,11 +115,11 @@ public class identifytraffic {
 
 		// -- 2. Read the video stream
 
-		VideoCapture capture = new VideoCapture(1);
-		if (!capture.isOpened()) {
-
-			System.exit(-1);
-		}
+		VideoCapture capture = new VideoCapture(0);
+		// if (!capture.isOpened()) {
+		//
+		// System.exit(-1);
+		// }
 
 		webcam_image = new Mat();
 		thresholded = new Mat();
@@ -142,11 +142,14 @@ public class identifytraffic {
 		// frame2.setSize(webcam_image.width() + 40, webcam_image.height() +
 		// 60);
 
-		Scalar hsv_minR1 = new Scalar(153, 117, 170, 0);
+		Scalar hsv_minR1 = new Scalar(155, 90, 229, 0);
 		Scalar hsv_maxR1 = new Scalar(180, 255, 255, 0);
 
-		Scalar hsv_minG = new Scalar(64, 70, 70, 0);
-		Scalar hsv_maxG = new Scalar(85, 255, 255, 0);
+		Scalar hsv_minG = new Scalar(80, 36, 255, 0);
+		Scalar hsv_maxG = new Scalar(88, 255, 255, 0);
+
+		Scalar hsv_minB = new Scalar(85, 136, 171, 0);
+		Scalar hsv_maxB = new Scalar(93, 196, 255, 0);
 
 		Size s = new Size(3, 3);
 
@@ -172,24 +175,23 @@ public class identifytraffic {
 
 				if (foundRed) {
 					System.out.println("Red Found");
-					color =1;
+					color = 1;
 				} else if (foundGreen) {
 					System.out.println("Green Found");
-					color =2;
+					color = 2;
 				} else {
 					System.out.println("Idek");
-					color =0;
+					color = 0;
 				}
 
 			} else {
 				System.out.println(" --(!) No captured frame -- Break!");
-				
+
 			}
-			
+
 		}
 		return color;
 	}
-
 
 	public static boolean findColor(Scalar hsv_min, Scalar hsv_max) {
 		boolean foundColor = false;

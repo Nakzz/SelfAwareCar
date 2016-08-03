@@ -1,3 +1,5 @@
+//troubleshoot purposes only. Find color with thredhoold
+
 package test;
 
 import java.awt.Graphics;
@@ -91,11 +93,11 @@ class Panel extends JPanel {
 }
 
 public class Trackbar {
-    static public Mat thresholded;
-    static public Mat hsvImg;
-    static public Mat processed;
-    static public Mat webcam_image;
-    
+	static public Mat thresholded;
+	static public Mat hsvImg;
+	static public Mat processed;
+	static public Mat webcam_image;
+
 	public static void main(String arg[]) {
 
 		// Load the native library.
@@ -136,24 +138,23 @@ public class Trackbar {
 		thresholded = new Mat();
 		hsvImg = new Mat();
 		processed = new Mat();
-		
+
 		capture.read(webcam_image);
 		frame1.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 		frame2.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 		frame4.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 
-		JSlider hsv_H = new JSlider(JSlider.HORIZONTAL, 0, 180, 153);
-		JSlider hsv_UH = new JSlider(JSlider.HORIZONTAL, 0, 180, 180);
-		JSlider hsv_S = new JSlider(JSlider.HORIZONTAL, 0, 255, 117);
+		JSlider hsv_H = new JSlider(JSlider.HORIZONTAL, 0, 180, 110);
+		JSlider hsv_UH = new JSlider(JSlider.HORIZONTAL, 0, 180, 130);
+		JSlider hsv_S = new JSlider(JSlider.HORIZONTAL, 0, 255, 0);
 		JSlider hsv_US = new JSlider(JSlider.HORIZONTAL, 0, 255, 255);
-		JSlider hsv_V = new JSlider(JSlider.HORIZONTAL, 0, 255, 170);
+		JSlider hsv_V = new JSlider(JSlider.HORIZONTAL, 0, 255, 0);
 		JSlider hsv_UV = new JSlider(JSlider.HORIZONTAL, 0, 255, 255);
 
 		// Scalar hsv_minR1 = new Scalar(hsv_H.getValue(), hsv_S.getValue(),
 		// hsv_V.getValue(), 0);
 		// Scalar hsv_maxR1 = new Scalar(hsv_UH.getValue(), hsv_US.getValue(),
 		// hsv_UV.getValue(), 0);
-
 
 		panel1.add(hsv_H);
 		panel1.add(hsv_UH);
@@ -169,7 +170,10 @@ public class Trackbar {
 			e.printStackTrace();
 		}
 
-		Scalar hsv_minG = new Scalar(64, 70, 70, 0);
+		// Scalar hsv_minG = new Scalar(64, 70, 70, 0);
+		// Scalar hsv_maxG = new Scalar(85, 255, 255, 0);
+
+		Scalar hsv_minG = new Scalar(85, 255, 255, 0);
 		Scalar hsv_maxG = new Scalar(85, 255, 255, 0);
 
 		if (capture.isOpened()) {
@@ -180,29 +184,33 @@ public class Trackbar {
 					Imgproc.cvtColor(webcam_image, hsvImg, Imgproc.COLOR_BGR2HSV);
 					Scalar hsv_minR1 = new Scalar(hsv_H.getValue(), hsv_S.getValue(), hsv_V.getValue(), 0);
 					Scalar hsv_maxR1 = new Scalar(hsv_UH.getValue(), hsv_US.getValue(), hsv_UV.getValue(), 0);
-
+					System.out.println("Mix: " + hsv_minR1);
+					System.out.println("Max: " + hsv_maxR1);
 					// Display the image
-					
+
 					panel2.setimagewithMat(hsvImg);
 
 					boolean foundRed = findColor(hsv_minR1, hsv_maxR1);
-					panel4.setimagewithMat(thresholded); //show image thresholded for red
+					panel4.setimagewithMat(thresholded); // show image
+															// thresholded for
+															// red
 					boolean foundGreen = findColor(hsv_minG, hsv_maxG);
-					panel4.setimagewithMat(thresholded); //show image thresholded for green
+					// panel4.setimagewithMat(thresholded); //show image
+					// thresholded for green
 					panel1.setimagewithMat(webcam_image);
 					frame1.repaint();
 					frame2.repaint();
 					frame4.repaint();
-					
+
 					if (foundRed) {
 						System.out.println("Red Found");
 					} else if (foundGreen) {
 						System.out.println("Green Found");
-						break;
+						// break;
 					} else {
 						System.out.println("Idek");
 					}
-					
+
 				} else {
 					System.out.println(" --(!) No captured frame -- Break!");
 					break;
@@ -212,7 +220,7 @@ public class Trackbar {
 
 		return;
 	}
-	
+
 	public static boolean findColor(Scalar hsv_min, Scalar hsv_max) {
 		boolean foundColor = false;
 		int bigContourCount = 0;
@@ -224,7 +232,7 @@ public class Trackbar {
 		Imgproc.dilate(processed, processed, new Mat());
 		Imgproc.erode(processed, processed, new Mat());
 		Imgproc.findContours(processed, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-		
+
 		for (int i = 0; i < contours.size(); i++) {
 			if (Imgproc.contourArea(contours.get(i)) > 30) {
 				Rect rectr = Imgproc.boundingRect(contours.get(i));
@@ -246,13 +254,13 @@ public class Trackbar {
 					// could use variable i to make them unique)
 					Core.rectangle(webcam_image, new Point(rect.x, rect.y),
 							new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255, 255, 0), 3);
-					
+
 				}
 			}
 		}
 		System.out.println(bigContourCount);
-		
-		if (bigContourCount > 0 ) {
+
+		if (bigContourCount > 0) {
 			foundColor = true;
 		} else {
 			foundColor = false;

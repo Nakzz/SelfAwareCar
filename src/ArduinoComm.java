@@ -82,7 +82,7 @@ public class ArduinoComm {
 			write(t);
 
 			// read();
-			a++;
+			// a++;
 			System.out.println("Loop count: " + a);
 		}
 
