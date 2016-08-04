@@ -21,14 +21,14 @@ Adafruit_DCMotor *motorBL = AFMS.getMotor(3);
 /*  #define BackTRIGGER_PIN  12
   #define BackECHO_PIN     11
   #define LeftTRIGGER_PIN  12
-  #define LeftECHO_PIN     11
-  #define RightTRIGGER_PIN  12
-  #define RightECHO_PIN     11 */
+  #define LeftECHO_PIN     11*/
+ # define RightTRIGGER_PIN  10
+  #define RightECHO_PIN     9 
   #define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
   NewPing sonarFront(FrontTRIGGER_PIN, FrontECHO_PIN, MAX_DISTANCE);
 //  NewPing sonarBack(BackTRIGGER_PIN, BackECHO_PIN, MAX_DISTANCE);
 //  NewPing sonarLeft(LeftTRIGGER_PIN, LeftECHO_PIN, MAX_DISTANCE);
-//  NewPing sonarRight(RightTRIGGER_PIN, RightECHO_PIN, MAX_DISTANCE);
+  NewPing sonarRight(RightTRIGGER_PIN, RightECHO_PIN, MAX_DISTANCE);
 
 int recv = 0;
 int speed = 140; //speed of all the motors for easy access
@@ -38,7 +38,7 @@ void setup() {
   AFMS.begin();
   motorFR->setSpeed(speed);
   motorFL->setSpeed(speed);
-  motorBR->setSpeed(speed);
+  motorBR->setSpeed(speed*.8);
   motorBL->setSpeed(speed);
 }
 
@@ -46,21 +46,64 @@ void loop() {
  if (Serial.available() > 0) {
     recv = Serial.read();
  
-    // if 'y' (decimal 121) is received, turn LED/Powertail on
-    // anything other than 121 is received, turn LED/Powertail off
-    if (recv == 121){
-      moveRight();
-    }else if(recv == 110) {
-moveLeft();
-    }else {
+    
+    if (recv == 49){
       stopRobot();
+      //Serial.println("Stopped ");
+    } else if (recv == 50) {
+      moveForward();
+      //Serial.println("Moving ");
+    } else if (recv == 48){
+      moveForward();
+      //delay(2000);
+      //stopRobot();
       }
      
     // confirm values received in serial monitor window
-    Serial.print("--Arduino received: ");
-    Serial.println(recv);
+    //Serial.print("--Arduino received: ");
+    //Serial.println(recv);
   }
 }
+
+void parkcar(){
+  moveForward();
+  delay(1000);
+  
+ int distanceR = sonarRight.ping_cm();
+  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  Serial.print("Ping R: ");
+  Serial.print(distanceR); // Send ping, get distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+    while (distanceR > 15 || distanceR == 0){
+    distanceR = sonarRight.ping_cm();
+  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  Serial.print("Ping R: ");
+  Serial.print(distanceR); // Send ping, get distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+    moveRight();
+    }
+
+  delay(200); 
+
+int distanceF = sonarFront.ping_cm();
+  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  Serial.print("Ping F: ");
+  Serial.print(distanceF); // Send ping, get distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+
+  while (distanceF > 10 || distanceF == 0){
+    distanceF = sonarFront.ping_cm();
+  delay(50);                     // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  Serial.print("Ping F: ");
+  Serial.print(distanceF); // Send ping, get distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+    moveBackward();
+    }
+
+  
+  stopRobot();
+  delay(3000);
+  }
 
 int moveForwardAvoidObs() {
    int distance = sonarFront.ping_cm();

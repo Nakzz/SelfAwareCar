@@ -3,6 +3,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import com.fazecast.jSerialComm.*;
 
+import test.identifytrafficlocal;
+
 public class ArduinoComm {
 	static SerialPort comPort;
 	static PrintWriter output;
@@ -50,7 +52,7 @@ public class ArduinoComm {
 	}
 
 	public static void main(String[] args) {
-		identifytraffic trafficstat = new identifytraffic();
+		identifytrafficlocal trafficstat = new identifytrafficlocal();
 
 		connect();
 
