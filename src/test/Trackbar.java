@@ -144,11 +144,11 @@ public class Trackbar {
 		frame2.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 		frame4.setSize(webcam_image.width() + 40, webcam_image.height() + 60);
 
-		JSlider hsv_H = new JSlider(JSlider.HORIZONTAL, 0, 180, 110);
-		JSlider hsv_UH = new JSlider(JSlider.HORIZONTAL, 0, 180, 130);
-		JSlider hsv_S = new JSlider(JSlider.HORIZONTAL, 0, 255, 0);
+		JSlider hsv_H = new JSlider(JSlider.HORIZONTAL, 0, 180, 155);
+		JSlider hsv_UH = new JSlider(JSlider.HORIZONTAL, 0, 180, 180);
+		JSlider hsv_S = new JSlider(JSlider.HORIZONTAL, 0, 255, 90);
 		JSlider hsv_US = new JSlider(JSlider.HORIZONTAL, 0, 255, 255);
-		JSlider hsv_V = new JSlider(JSlider.HORIZONTAL, 0, 255, 0);
+		JSlider hsv_V = new JSlider(JSlider.HORIZONTAL, 0, 255, 229);
 		JSlider hsv_UV = new JSlider(JSlider.HORIZONTAL, 0, 255, 255);
 
 		// Scalar hsv_minR1 = new Scalar(hsv_H.getValue(), hsv_S.getValue(),

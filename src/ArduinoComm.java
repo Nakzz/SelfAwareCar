@@ -2,7 +2,6 @@
 import java.io.InputStream;
 import java.io.PrintWriter;
 import com.fazecast.jSerialComm.*;
-
 import test.identifytrafficlocal;
 
 public class ArduinoComm {

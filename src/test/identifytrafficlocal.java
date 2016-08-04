@@ -1,10 +1,11 @@
+package test;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
-
+import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -16,80 +17,16 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.core.CvType;
+import javax.swing.JSlider;
 
-class Panel extends JPanel {
-	private static final long serialVersionUID = 1L;
-	private BufferedImage image;
 
-	// Create a constructor method
-	public Panel() {
-		super();
-	}
-
-	private BufferedImage getimage() {
-		return image;
-	}
-
-	public void setimage(BufferedImage newimage) {
-		image = newimage;
-		return;
-	}
-
-	public void setimagewithMat(Mat newimage) {
-		image = this.matToBufferedImage(newimage);
-		return;
-	}
-
-	/**
-	 * Converts/writes a Mat into a BufferedImage.
-	 * 
-	 * @param matrix
-	 *            Mat of type CV_8UC3 or CV_8UC1
-	 * @return BufferedImage of type TYPE_3BYTE_BGR or TYPE_BYTE_GRAY
-	 */
-	public BufferedImage matToBufferedImage(Mat matrix) {
-		int cols = matrix.cols();
-		int rows = matrix.rows();
-		int elemSize = (int) matrix.elemSize();
-		byte[] data = new byte[cols * rows * elemSize];
-		int type;
-		matrix.get(0, 0, data);
-		switch (matrix.channels()) {
-		case 1:
-			type = BufferedImage.TYPE_BYTE_GRAY;
-			break;
-		case 3:
-			type = BufferedImage.TYPE_3BYTE_BGR;
-			// bgr to rgb
-			byte b;
-			for (int i = 0; i < data.length; i = i + 3) {
-				b = data[i];
-				data[i] = data[i + 2];
-				data[i + 2] = b;
-			}
-			break;
-		default:
-			return null;
-		}
-		BufferedImage image2 = new BufferedImage(cols, rows, type);
-		image2.getRaster().setDataElements(0, 0, cols, rows, data);
-		return image2;
-	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		BufferedImage temp = getimage();
-		if (temp != null)
-			g.drawImage(temp, 10, 10, temp.getWidth(), temp.getHeight(), this);
-	}
-}
-
-public class identifytraffic {
+public class identifytrafficlocal {
 	static public Mat thresholded;
 	static public Mat hsvImg;
 	static public Mat processed;
 	static public Mat webcam_image;
+	public int c=0;
 
 	public int traffic() {
 
@@ -113,36 +50,53 @@ public class identifytraffic {
 		 */
 
 		// -- 2. Read the video stream
-
-		VideoCapture capture = new VideoCapture(0);
-		// if (!capture.isOpened()) {
-		//
-		// System.exit(-1);
-		// }
-
 		webcam_image = new Mat();
+		VideoCapture capture = new VideoCapture(0); //
+		if (capture.isOpened()) {
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} // delay for webcam to load
+
+			capture.read(webcam_image);
+			
+			if (capture.read(webcam_image) == false) {
+				try {
+					throw new Exception();
+				} catch (Exception e) { // TODO Auto-generated catch block
+					e.printStackTrace();
+					System.exit(0);
+				}
+
+			}
+			
+			
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+
+			}
+			c++;
+			System.out.println("Camera opening after tries: "+ c);
+			
+			Highgui.imwrite("camerasnap.jpeg", webcam_image);
+		}
+
+		Mat webcam_image = Highgui.imread("camerasnap.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
+
+		
 		thresholded = new Mat();
 		hsvImg = new Mat();
 		processed = new Mat();
 
-		if (capture.read(webcam_image) == false)
-			
-			if (capture.isOpened()) {
-				 
-				 			try {
-								Thread.sleep(1000);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-								System.exit(0);
-							} // delay for webcam to load, if it doesnt then close the program
-				 
-				 			capture.read(webcam_image);
-				
-				 			Highgui.imwrite("camera.jpeg", webcam_image);
-				 		}
-				 
-		Mat webcam_image = Highgui.imread("camera.jpeg", Highgui.CV_LOAD_IMAGE_COLOR);
+//		capture.read(webcam_image);
+//
+
 
 		// frame1.setSize(webcam_image.width() + 40, webcam_image.height() +
 		// 60);
@@ -158,7 +112,7 @@ public class identifytraffic {
 		Scalar hsv_minB = new Scalar(85, 136, 171, 0);
 		Scalar hsv_maxB = new Scalar(93, 196, 255, 0);
 
-
+		Size s = new Size(3, 3);
 
 		if (capture.isOpened()) {
 
@@ -174,8 +128,6 @@ public class identifytraffic {
 				// for red
 				boolean foundGreen = findColor(hsv_minG, hsv_maxG);
 				// panel4.setimagewithMat(thresholded); //show image thresholded
-				boolean foundBlue = findColor(hsv_minB, hsv_maxB);
-				// panel4.setimagewithMat(thresholded); //show image thresholded
 				// for green
 				// panel1.setimagewithMat(webcam_image);
 				// frame1.repaint();
@@ -188,9 +140,6 @@ public class identifytraffic {
 				} else if (foundGreen) {
 					System.out.println("Green Found");
 					color = 2;
-				} else if(foundBlue){
-					System.out.println("Blue Found");
-					color = 3;
 				} else {
 					System.out.println("Idek");
 					color = 0;
@@ -202,6 +151,8 @@ public class identifytraffic {
 			}
 
 		}
+		capture.release();
+		
 		return color;
 	}
 
