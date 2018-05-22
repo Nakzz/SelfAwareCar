@@ -1,9 +1,9 @@
 # SelfAwareCar
 Selfdriven car using OpenCV
 
-OpenCV-2.4.13
+Project Detail [http://bluestampengineering.com/student-projects/portfolioajmain-n/]
 
-The project is still under development, only the OpenCV.
+OpenCV-2.4.13
 
 communication.Test.java  is the tutorial file which I am using for Arduino to Raspberry or any platform using java. 
 
