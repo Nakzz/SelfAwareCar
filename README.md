@@ -15,3 +15,11 @@ Uses usb camera to capture and identify traffic lights.
 
 ## ./src/ArduinoComm.java
 Establishes connection between Raspberry and Arduino, through serial communication, controls the motors. 
+
+
+## Notes
+- Use python instead of Java library. There are very few documentation on the newer OpenCV library, but on the contrary, there are a lot of python tutorials for OpenCV vision recognition. 
+
+## License
+
+    Copyright [2018] [Ajmain Naqib]
